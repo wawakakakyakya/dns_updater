@@ -1,59 +1,62 @@
 package main
 
 import (
-	"context"
+	"dns_updater/client"
+	googledomain "dns_updater/client/google_domain"
+	"dns_updater/client/mydns"
+	"dns_updater/config"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"os"
-
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/dns/v1"
-	"google.golang.org/api/option"
+	"sync"
 )
+
+var wg sync.WaitGroup
 
 func getGlobalIp() string {
 	// curl checkip.amazonaws.com
 	return ""
 }
 
+func do(client client.Client, errCh chan error) {
+	client.Update(errCh)
+	wg.Done()
+	fmt.Println("wait group was decrement")
+}
+
 func main() {
-	ctx := context.Background()
-	credentialJson, err := os.Open("credentials.json")
+	config, err := config.NewConfig()
 	if err != nil {
-		fmt.Println("credential.json not found")
-		log.Fatal(err)
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
-	var credentialContent []byte
-	credentialContent, err = ioutil.ReadAll(credentialJson)
-	if err != nil {
-		fmt.Println("read err from credential.json")
-		log.Fatal(err)
+	fmt.Println(config)
+	errCh := make(chan error, len(config.Cfgs))
+	defer close(errCh)
+	var client client.Client
+	for _, cfg := range config.Cfgs {
+		switch cfg.Env {
+		case "mydns":
+			client = mydns.NewMyDNSClient(cfg)
+		case "googleDomain":
+			client = googledomain.NewGoogleDomainClient(cfg)
+		default:
+			fmt.Sprintln("unsupported env: %s, skipped", cfg.Env)
+			continue
+		}
+		wg.Add(1)
+		go do(client, errCh)
 	}
-	credentials, err := google.CredentialsFromJSON(ctx, credentialContent)
-	if err != nil {
-		fmt.Println("auth err")
-		log.Fatal(err)
+	wg.Wait()
+	select {
+	case err, closed := <-errCh:
+		if !closed {
+			fmt.Printf("Value %s was read.\n", err.Error())
+		} else {
+			fmt.Println("Channel closed!")
+		}
+	default:
+		fmt.Println("No value ready, moving on.")
 	}
 
-	dnsService, err := dns.NewService(ctx, option.WithCredentialsJSON(credentials.JSON))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	rrService := dns.NewResourceRecordSetsService(dnsService)
-	resp, err := rrService.Get("project-id", "zone-name", "domain", "A").Context(ctx).Do()
-	if err != nil {
-		fmt.Println("can not get dns info")
-		log.Fatal(err)
-	}
-	var pResp *dns.ResourceRecordSet
-
-	resp.Name = "test.example.com"
-	pResp, err = rrService.Patch("project-id", "zone-name", "test.example.com", "A", resp).Context(ctx).Do()
-	if err != nil {
-		fmt.Println("can not update dns info")
-		log.Fatal(err)
-	}
-	fmt.Println(pResp.MarshalJSON())
+	fmt.Println("end.")
 }

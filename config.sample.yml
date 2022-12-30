@@ -1,0 +1,20 @@
+lists:
+  - env: mydns
+    timeout: 30
+    google:
+      credential: credential-path
+      project_id: AAA
+      zone_name: BBB
+      domain: CCC
+      record_type: A/CNAME
+  - env: mydns
+    tiemout: 30
+    mydns:
+      username: mydns111222333
+      password: mydnsPassword
+  - env: googleDomain
+    tiemout: 30
+    googleDomain:
+      domain: subdomain.example.com
+      username: aaa111bbb222ccc
+      password: aaa111bbb222ccc

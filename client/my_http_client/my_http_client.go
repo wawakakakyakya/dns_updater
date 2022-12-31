@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"dns_updater/logger"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -12,38 +13,39 @@ import (
 type MyHttpClient struct {
 	url    string
 	client *http.Client
+	logger *logger.Logger
 }
 
 func (c *MyHttpClient) Get(req *http.Request) (*bytes.Buffer, error) {
-	fmt.Println("MyHttpClient.Get called")
-	fmt.Printf("MyHttpClient http request: %+v\n", req)
+	c.logger.Debug("Get called")
+	c.logger.Debug(fmt.Sprintf("http request: %+v\n", req))
 	var buf bytes.Buffer
 
 	resp, err := c.client.Do(req)
-	fmt.Printf("MyHttpClient request to %s was executed\n", req.URL)
+	c.logger.Debug(fmt.Sprintf("request to %s was executed\n", req.URL))
 	if err != nil {
-		fmt.Println("MyHttpClient Get failed")
+		c.logger.Error("Get failed")
 		return nil, err
 	}
 	defer resp.Body.Close()
 	io.Copy(&buf, resp.Body)
 	ok := resp.StatusCode >= 200 && resp.StatusCode < 300
 	if !ok {
-		fmt.Printf("status code(%d) was not succeeded\n", resp.StatusCode)
+		c.logger.Error(fmt.Sprintf("status code(%d) was not succeeded\n", resp.StatusCode))
 		return &buf, err
 	} else {
-		fmt.Println("MyHttpClient api was called successfully")
+		c.logger.Debug("Mapi was called successfully")
 	}
 	res, err := ioutil.ReadAll(&buf)
 	if err != nil {
-		fmt.Println(err.Error())
 		return &buf, err
 	}
-	fmt.Printf("http body: \n%+v\n", string(res))
+	c.logger.Debug(fmt.Sprintf("http body: \n%+s\n", string(res)))
 	return &buf, nil
 }
 
-func NewHttpClient(url string, timeout int) *MyHttpClient {
+func NewHttpClient(url string, timeout int, logger *logger.Logger) *MyHttpClient {
 	client := &http.Client{Timeout: time.Duration(timeout) * time.Second}
-	return &MyHttpClient{url: url, client: client}
+	httpClientLogger := logger.Child("HttpClient")
+	return &MyHttpClient{url: url, client: client, logger: httpClientLogger}
 }

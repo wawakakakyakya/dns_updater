@@ -3,13 +3,14 @@ package ddnsclient
 import (
 	"bytes"
 	client "dns_updater/client/my_http_client"
-	"fmt"
+	"dns_updater/logger"
 	"net/http"
 )
 
 type DDNSClient struct {
 	req    *http.Request
 	client *client.MyHttpClient
+	logger *logger.Logger
 }
 
 func (m *DDNSClient) List() []string {
@@ -27,24 +28,25 @@ func (m *DDNSClient) SetParam(key string, value string) {
 }
 
 func (m *DDNSClient) Update() (*bytes.Buffer, error) {
-	fmt.Println("DDNSClient.Update called")
+	m.logger.Debug("update called")
 	body, err := m.client.Get(m.req)
 	if err != nil {
-		fmt.Sprintln("DDNSClient.Update failed")
-		fmt.Println(err.Error())
+		m.logger.Error("update failed")
 		return body, err
 	}
 	return body, err
 }
 
-func NewDDNSClient(url string, timeout int, userName, password string) (*DDNSClient, error) {
-	httpClient := client.NewHttpClient(url, timeout)
+func NewDDNSClient(url string, timeout int, userName, password string, logger *logger.Logger) (*DDNSClient, error) {
+	dDNSClientlogger := logger.Child("DDNSClient")
+	httpClient := client.NewHttpClient(url, timeout, dDNSClientlogger)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		fmt.Println("create DDNSClient failed")
+		logger.Error("create DDNSClient failed")
 		return nil, err
 	}
 	req.SetBasicAuth(userName, password)
 	req.Header.Set("User-Agent", "dns_udater/1.0.0")
-	return &DDNSClient{req: req, client: httpClient}, nil
+
+	return &DDNSClient{req: req, client: httpClient, logger: dDNSClientlogger}, nil
 }

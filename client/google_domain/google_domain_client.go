@@ -35,7 +35,7 @@ func (m *GoogleDomainClient) Update(errCh chan<- error) {
 	m.logger.Info(fmt.Sprintf("update with %s was executed successfully", m.Name))
 }
 
-func NewGoogleDomainClient(cfg config.YamlConfig, logger *logger.Logger) *GoogleDomainClient {
+func NewGoogleDomainClient(cfg *config.YamlConfig, logger *logger.Logger) *GoogleDomainClient {
 	googleDomainLogger := logger.Child("GoogleDomainClient")
 	ddnsclient, err := ddnsclient.NewDDNSClient(googleDomainURL, cfg.Timeout, cfg.GoogleDomain.UserName, cfg.GoogleDomain.Pass, googleDomainLogger)
 

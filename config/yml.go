@@ -5,8 +5,8 @@ import (
 )
 
 type YamlConfigs struct {
-	Cfgs      []YamlConfig `yaml:"lists"`
-	GlobalCfg GlobalConfig `yaml:"global_config"`
+	Cfgs      []*YamlConfig `yaml:"lists"`
+	GlobalCfg GlobalConfig  `yaml:"global_config"`
 }
 
 type GlobalConfig struct {
@@ -22,11 +22,11 @@ type LogConfig struct {
 	Compress   bool   `yaml:"compress"`
 }
 
-type GoogleConfig struct {
+type CloudDNS struct {
 	Credential string `yaml:"credential"`
 	ProjectID  string `yaml:"project_id"`
 	ZoneName   string `yaml:"zone_name"`
-	Domain     string `yaml:"domain"`
+	Name       string `yaml:"name"`
 	RecordType string `yaml:"record_type"`
 }
 
@@ -44,9 +44,9 @@ type GoogleDomainConfig struct {
 type YamlConfig struct {
 	Env          string             `yaml:"env"`
 	Timeout      int                `yaml:"timeout"`
-	Google       GoogleConfig       `yaml:"google"`
+	CloudDNS     CloudDNS           `yaml:"cloudDNS"`
 	MyDNS        MyDNSConfig        `yaml:"mydns"`
-	GoogleDomain GoogleDomainConfig `yaml:"google_domain"`
+	GoogleDomain GoogleDomainConfig `yaml:"googleDomain"`
 }
 
 func LoadYamlConfig() (YamlConfigs, error) {

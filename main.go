@@ -2,6 +2,7 @@ package main
 
 import (
 	"dns_updater/client"
+	clouddns "dns_updater/client/cloud_dns"
 	googledomain "dns_updater/client/google_domain"
 	"dns_updater/client/mydns"
 	"dns_updater/config"
@@ -13,11 +14,6 @@ import (
 
 var wg sync.WaitGroup
 
-func getGlobalIp() string {
-	// curl checkip.amazonaws.com
-	return ""
-}
-
 func do(client client.Client, errCh chan error) {
 	defer wg.Done()
 	client.Update(errCh)
@@ -27,7 +23,7 @@ func do(client client.Client, errCh chan error) {
 func main() {
 	config, err := config.NewConfig()
 	if err != nil {
-		fmt.Println("[ERROR] create config failed")
+		fmt.Println("[ERROR] read config failed")
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
@@ -41,6 +37,8 @@ func main() {
 			client = mydns.NewMyDNSClient(cfg, logger)
 		case "googleDomain":
 			client = googledomain.NewGoogleDomainClient(cfg, logger)
+		case "cloudDNS":
+			client = clouddns.NewCloudDNSClient(cfg, logger)
 		default:
 			logger.Warn(fmt.Sprintf("unsupported env: %s, skipped", cfg.Env))
 			continue
@@ -54,9 +52,9 @@ func main() {
 	select {
 	case err, closed := <-errCh:
 		if !closed {
-			logger.Error(err.Error())
-		} else {
 			logger.Info("channel closed.")
+		} else {
+			logger.Error(err.Error())
 		}
 	default:
 		logger.Info("No value ready, moving on.")

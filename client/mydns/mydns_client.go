@@ -35,7 +35,7 @@ func (m *MyDNSClient) Update(errCh chan<- error) {
 	m.logger.Info(fmt.Sprintf("update mydns with %s was executed successfully", m.Name))
 }
 
-func NewMyDNSClient(cfg config.YamlConfig, logger *logger.Logger) *MyDNSClient {
+func NewMyDNSClient(cfg *config.YamlConfig, logger *logger.Logger) *MyDNSClient {
 	mydnsLogger := logger.Child("MyDNSClient")
 	ddnsclient, err := ddnsclient.NewDDNSClient(myDNSURL, cfg.Timeout, cfg.MyDNS.UserName, cfg.MyDNS.Pass, mydnsLogger)
 

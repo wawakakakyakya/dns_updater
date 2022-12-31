@@ -20,6 +20,5 @@
 go.sum
 dns_updater
 config.yml
-gcp.yml
-aws.yml
 credentials.json
+*.log

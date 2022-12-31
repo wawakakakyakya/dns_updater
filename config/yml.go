@@ -5,7 +5,21 @@ import (
 )
 
 type YamlConfigs struct {
-	Cfgs []YamlConfig `yaml:"lists"`
+	Cfgs      []YamlConfig `yaml:"lists"`
+	GlobalCfg GlobalConfig `yaml:"global_config"`
+}
+
+type GlobalConfig struct {
+	Log LogConfig `yaml:"log"`
+}
+
+type LogConfig struct {
+	Level      int    `yaml:"level"`
+	Path       string `yaml:"path"`
+	MaxSize    int    `yaml:"max_size"`
+	MaxBackups int    `yaml:"max_backups"`
+	MaxAge     int    `yaml:"max_age"`
+	Compress   bool   `yaml:"compress"`
 }
 
 type GoogleConfig struct {

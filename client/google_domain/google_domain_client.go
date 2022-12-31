@@ -2,15 +2,18 @@ package googledomain
 
 import (
 	ddnsclient "dns_updater/client/ddns_client"
+	"dns_updater/logger"
+	"fmt"
 
 	"dns_updater/config"
-	"fmt"
 )
 
 var googleDomainURL string = "https://domains.google.com/nic/update"
 
 type GoogleDomainClient struct {
 	ddnsclient *ddnsclient.DDNSClient
+	logger     *logger.Logger
+	Name       string
 }
 
 func (m *GoogleDomainClient) List() []string {
@@ -22,24 +25,25 @@ func (m *GoogleDomainClient) Add() error {
 }
 
 func (m *GoogleDomainClient) Update(errCh chan<- error) {
-	fmt.Println("GoogleDomainClient.Update called")
-
+	m.logger.Debug("update called")
+	m.logger.Info(fmt.Sprintf("update google domain with %s will start", m.Name))
 	_, err := m.ddnsclient.Update()
 	if err != nil {
-		fmt.Sprintln("GoogleDomainClient.Update failed")
+		m.logger.Error(fmt.Sprintf("update with %s failed", m.Name))
 		errCh <- err
-		return
 	}
-	return
+	m.logger.Info(fmt.Sprintf("update with %s was executed successfully", m.Name))
 }
 
-func NewGoogleDomainClient(cfg config.YamlConfig) *GoogleDomainClient {
-	ddnsclient, err := ddnsclient.NewDDNSClient(googleDomainURL, cfg.Timeout, cfg.GoogleDomain.UserName, cfg.GoogleDomain.Pass)
+func NewGoogleDomainClient(cfg config.YamlConfig, logger *logger.Logger) *GoogleDomainClient {
+	googleDomainLogger := logger.Child("GoogleDomainClient")
+	ddnsclient, err := ddnsclient.NewDDNSClient(googleDomainURL, cfg.Timeout, cfg.GoogleDomain.UserName, cfg.GoogleDomain.Pass, googleDomainLogger)
+
 	if err != nil {
-		fmt.Println("create GoogleDomainClient failed")
-		fmt.Println(err.Error())
+		logger.Error("create GoogleDomainClient failed")
+		logger.Error(err.Error())
 		return nil
 	}
 	ddnsclient.SetParam("hostname", cfg.GoogleDomain.Domain)
-	return &GoogleDomainClient{ddnsclient: ddnsclient}
+	return &GoogleDomainClient{ddnsclient: ddnsclient, logger: googleDomainLogger, Name: cfg.GoogleDomain.UserName}
 }

@@ -5,6 +5,7 @@ import (
 	googledomain "dns_updater/client/google_domain"
 	"dns_updater/client/mydns"
 	"dns_updater/config"
+	"dns_updater/logger"
 	"fmt"
 	"os"
 	"sync"
@@ -18,45 +19,48 @@ func getGlobalIp() string {
 }
 
 func do(client client.Client, errCh chan error) {
+	defer wg.Done()
 	client.Update(errCh)
-	wg.Done()
 	fmt.Println("wait group was decrement")
 }
 
 func main() {
 	config, err := config.NewConfig()
 	if err != nil {
+		fmt.Println("[ERROR] create config failed")
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-	fmt.Println(config)
+	logger := logger.NewLogger("main", &config.GlobalCfg.Log)
 	errCh := make(chan error, len(config.Cfgs))
 	defer close(errCh)
 	var client client.Client
 	for _, cfg := range config.Cfgs {
 		switch cfg.Env {
 		case "mydns":
-			client = mydns.NewMyDNSClient(cfg)
+			client = mydns.NewMyDNSClient(cfg, logger)
 		case "googleDomain":
-			client = googledomain.NewGoogleDomainClient(cfg)
+			client = googledomain.NewGoogleDomainClient(cfg, logger)
 		default:
-			fmt.Sprintln("unsupported env: %s, skipped", cfg.Env)
+			logger.Warn(fmt.Sprintf("unsupported env: %s, skipped", cfg.Env))
 			continue
 		}
 		wg.Add(1)
+		logger.Debug("add wait group")
 		go do(client, errCh)
 	}
+
 	wg.Wait()
 	select {
 	case err, closed := <-errCh:
 		if !closed {
-			fmt.Printf("Value %s was read.\n", err.Error())
+			logger.Error(err.Error())
 		} else {
-			fmt.Println("Channel closed!")
+			logger.Info("channel closed.")
 		}
 	default:
-		fmt.Println("No value ready, moving on.")
+		logger.Info("No value ready, moving on.")
 	}
 
-	fmt.Println("end.")
+	logger.Info("end.")
 }

@@ -39,7 +39,7 @@ func (m *DDNSClient) Update() (*bytes.Buffer, error) {
 
 func NewDDNSClient(url string, timeout int, userName, password string, logger *logger.Logger) (*DDNSClient, error) {
 	dDNSClientlogger := logger.Child("DDNSClient")
-	httpClient := client.NewHttpClient(url, timeout, dDNSClientlogger)
+	httpClient := client.NewMyHttpClient(timeout, dDNSClientlogger)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		logger.Error("create DDNSClient failed")

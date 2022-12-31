@@ -1,4 +1,4 @@
-package client
+package my_http_client
 
 import (
 	"bytes"
@@ -11,7 +11,6 @@ import (
 )
 
 type MyHttpClient struct {
-	url    string
 	client *http.Client
 	logger *logger.Logger
 }
@@ -44,8 +43,8 @@ func (c *MyHttpClient) Get(req *http.Request) (*bytes.Buffer, error) {
 	return &buf, nil
 }
 
-func NewHttpClient(url string, timeout int, logger *logger.Logger) *MyHttpClient {
+func NewMyHttpClient(timeout int, logger *logger.Logger) *MyHttpClient {
 	client := &http.Client{Timeout: time.Duration(timeout) * time.Second}
 	httpClientLogger := logger.Child("HttpClient")
-	return &MyHttpClient{url: url, client: client, logger: httpClientLogger}
+	return &MyHttpClient{client: client, logger: httpClientLogger}
 }

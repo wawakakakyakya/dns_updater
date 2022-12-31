@@ -13,11 +13,6 @@ import (
 
 var wg sync.WaitGroup
 
-func getGlobalIp() string {
-	// curl checkip.amazonaws.com
-	return ""
-}
-
 func do(client client.Client, errCh chan error) {
 	defer wg.Done()
 	client.Update(errCh)

@@ -1,44 +1,81 @@
 package client
 
 import (
+	"dns_updater/client/my_http_client"
+	"dns_updater/logger"
+	"errors"
 	"fmt"
+	"io/ioutil"
+	"net"
 	"net/http"
-	"time"
+	"sync"
 )
 
-type MyHttpClient struct {
-	url string
-	cli *http.Client
+var globalIPURL = "https://domains.google.com/checkip"
+
+type GlobalIPClient struct {
+	client *my_http_client.MyHttpClient
+	logger *logger.Logger
+	req    *http.Request
 }
 
-func (c *MyHttpClient) Get() error {
-	req, err := http.NewRequest("GET", c.url, nil)
+func validateIP(ip string) bool {
+	return net.ParseIP(ip) != nil
+}
+
+func (g *GlobalIPClient) Get() (*string, error) {
+	getGlobalIPLock.Lock()
+	defer getGlobalIPLock.Unlock()
+
+	if globalIP != nil {
+		return globalIP, nil
+	}
+
+	g.logger.Debug("update called")
+	g.logger.Info("get my global ip addr start")
+	body, err := g.client.Get(g.req)
 	if err != nil {
-		return err
+		g.logger.Error("get global ip addr failed")
+		return nil, err
 	}
-
-	fmt.Println("request to mydns was executed")
-	resp, err := c.cli.Do(req)
+	_body, err := ioutil.ReadAll(body)
 	if err != nil {
-		fmt.Println(err.Error())
-		return err
+		return nil, err
 	}
-	defer resp.Body.Close()
-	ok := resp.StatusCode >= 200 && resp.StatusCode < 300
-	if !ok {
-		fmt.Printf("status code(%d) was not succeeded\n", resp.StatusCode)
-		return err
-	} else {
-		fmt.Printf("mydns record was updated successfully")
+
+	ip := string(_body)
+	if !validateIP(ip) {
+		return nil, errors.New(fmt.Sprintf("global ip addr was invalid: %s", ip))
 	}
-	return nil
+	globalIP = &ip
+	g.logger.Info("get my global ip was ended successfully")
+	return globalIP, nil
 }
 
-func NewHttpClient(url string, timeout int) *MyHttpClient {
-	cli := &http.Client{Timeout: time.Duration(timeout) * time.Second}
-	return &MyHttpClient{url: url, cli: cli}
-}
+var (
+	SharedGlobalIPClient  *GlobalIPClient
+	newGlobalIPClientLock sync.Mutex
+	getGlobalIPLock       sync.Mutex
+	globalIP              *string //直接参照させず、Get経由で取得させる
+)
 
-func NewMyDNSClient(url string) *MyHttpClient {
-	return &MyHttpClient{url: url}
+//GlobalIPClientは共有で使用する
+func NewGlobalIPClient(timeout int, logger *logger.Logger) *GlobalIPClient {
+	newGlobalIPClientLock.Lock()
+	defer newGlobalIPClientLock.Unlock()
+
+	if SharedGlobalIPClient != nil {
+		return SharedGlobalIPClient
+	}
+
+	globalIPLogger := logger.Child("GlobalIPClient")
+	req, err := http.NewRequest("GET", globalIPURL, nil)
+	if err != nil {
+		logger.Error("create DDNSClient failed")
+		logger.Error(err.Error())
+		return nil
+	}
+	client := my_http_client.NewMyHttpClient(timeout, globalIPLogger)
+	SharedGlobalIPClient := &GlobalIPClient{client: client, logger: globalIPLogger, req: req}
+	return SharedGlobalIPClient
 }

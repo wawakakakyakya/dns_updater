@@ -1,4 +1,4 @@
-package client
+package my_global_ip
 
 import (
 	"dns_updater/client/my_http_client"
@@ -28,6 +28,7 @@ func (g *GlobalIPClient) Get() (*string, error) {
 	defer getGlobalIPLock.Unlock()
 
 	if globalIP != nil {
+		g.logger.Debug(fmt.Sprintf("global ip: %s was found", *globalIP))
 		return globalIP, nil
 	}
 
@@ -44,11 +45,12 @@ func (g *GlobalIPClient) Get() (*string, error) {
 	}
 
 	ip := string(_body)
+	fmt.Println(ip)
 	if !validateIP(ip) {
 		return nil, errors.New(fmt.Sprintf("global ip addr was invalid: %s", ip))
 	}
 	globalIP = &ip
-	g.logger.Info("get my global ip was ended successfully")
+	g.logger.Info(fmt.Sprintf("get my global ip was ended successfully: %s", *globalIP))
 	return globalIP, nil
 }
 

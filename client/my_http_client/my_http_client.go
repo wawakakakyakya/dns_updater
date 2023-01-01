@@ -3,7 +3,6 @@ package my_http_client
 import (
 	"bytes"
 	"dns_updater/logger"
-	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -16,11 +15,11 @@ type MyHttpClient struct {
 
 func (c *MyHttpClient) Get(req *http.Request) (*bytes.Buffer, error) {
 	c.logger.Debug("Get called")
-	c.logger.Debug(fmt.Sprintf("http request: %+v\n", req))
+	c.logger.DebugF("http request: %+v\n", req)
 	var buf bytes.Buffer
 
 	resp, err := c.client.Do(req)
-	c.logger.Debug(fmt.Sprintf("request to %s was executed", req.URL))
+	c.logger.DebugF("request to %s was executed", req.URL)
 	if err != nil {
 		c.logger.Error("Get failed")
 		return nil, err
@@ -29,16 +28,13 @@ func (c *MyHttpClient) Get(req *http.Request) (*bytes.Buffer, error) {
 	io.Copy(&buf, resp.Body)
 	ok := resp.StatusCode >= 200 && resp.StatusCode < 300
 	if !ok {
-		c.logger.Error(fmt.Sprintf("status code(%d) was not succeeded", resp.StatusCode))
+		c.logger.ErrorF("request to %s failed, status code: %d", req.URL, resp.StatusCode)
+		c.logger.Error(buf.String())
 		return &buf, err
 	} else {
-		c.logger.Debug(fmt.Sprintf("request to %s was executed successfully", req.URL))
+		c.logger.DebugF("request to %s was executed successfully", req.URL)
 	}
-	// res, err := ioutil.ReadAll(&buf)
-	// if err != nil {
-	// 	return &buf, err
-	// }
-	// c.logger.Debug(fmt.Sprintf("http body: \n%+s\n", string(res)))
+
 	return &buf, nil
 }
 

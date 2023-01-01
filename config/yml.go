@@ -36,7 +36,7 @@ type MyDNSConfig struct {
 }
 
 type GoogleDomainConfig struct {
-	Domain   string `yaml:"domain"`
+	Name     string `yaml:"name"`
 	UserName string `yaml:"username"`
 	Pass     string `yaml:"password"`
 }
@@ -50,8 +50,8 @@ type YamlConfig struct {
 }
 
 func LoadYamlConfig() (YamlConfigs, error) {
-
-	ycArray := YamlConfigs{}
+	defaultLogConfig := NewDefaultLogConfig()
+	ycArray := YamlConfigs{GlobalCfg: GlobalConfig{Log: defaultLogConfig}}
 	err := yml.Load(configPath, &ycArray)
 	if err != nil {
 		return ycArray, err

@@ -40,7 +40,7 @@ func main() {
 		case "cloudDNS":
 			client = clouddns.NewCloudDNSClient(cfg, logger)
 		default:
-			logger.Warn(fmt.Sprintf("unsupported env: %s, skipped", cfg.Env))
+			logger.WarnF("unsupported env: %s, skipped", cfg.Env)
 			continue
 		}
 		wg.Add(1)

@@ -1,20 +1,28 @@
+global_config:
+  log:
+    level: 0
+    path: ./dns_updater.log
+    max_size: 10
+    max_backups: 5
+    max_age: 7
+    compress: true
 lists:
-  - env: mydns
+  - env: cloudDNS
     timeout: 30
-    google:
-      credential: credential-path
-      project_id: AAA
-      zone_name: BBB
-      domain: CCC
-      record_type: A/CNAME
+    cloudDNS:
+      credential: credential.json
+      project_id: projectID
+      zone_name: zoneName
+      name: name
+      record_type: A
   - env: mydns
     tiemout: 30
     mydns:
-      username: mydns111222333
-      password: mydnsPassword
+      username: mydns111222
+      password: passwdpasswd
   - env: googleDomain
     tiemout: 30
-    googleDomain:
-      domain: subdomain.example.com
-      username: aaa111bbb222ccc
-      password: aaa111bbb222ccc
+    google_domain:
+      name: domain
+      username: userName
+      password: passwdpasswd

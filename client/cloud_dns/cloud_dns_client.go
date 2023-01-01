@@ -30,6 +30,7 @@ func (c *CloudDNSClient) List() []string {
 }
 
 func (c *CloudDNSClient) Update(errCh chan<- error) {
+	c.logger.InfoF("update clouddns with %s started", c.Name)
 
 	ctx := context.Background()
 	credentialJson, err := file.ReadAll(c.cfg.Credential)
@@ -60,17 +61,16 @@ func (c *CloudDNSClient) Update(errCh chan<- error) {
 	rrService := dns.NewResourceRecordSetsService(dnsService)
 	resp, err := rrService.Get(c.cfg.ProjectID, c.cfg.ZoneName, c.cfg.Name, c.cfg.RecordType).Context(ctx).Do()
 	if err != nil {
-		c.logger.Error("get dns info failed")
+		c.logger.Error("get zone info failed")
 		errCh <- err
 		return
 	}
 	var pResp *dns.ResourceRecordSet
 
 	resp.Name = c.cfg.Name
-	c.logger.Info("update clouddns will start")
 	pResp, err = rrService.Patch(c.cfg.ProjectID, c.cfg.ZoneName, c.cfg.Name, c.cfg.RecordType, resp).Context(ctx).Do()
 	if err != nil {
-		c.logger.Error("can not update dns info")
+		c.logger.Error("update zone info failed")
 		errCh <- err
 		return
 	}

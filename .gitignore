@@ -22,3 +22,4 @@ dns_updater
 config.yml
 credentials.json
 *.log
+dns_updater*

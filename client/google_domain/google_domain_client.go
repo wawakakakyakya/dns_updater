@@ -3,7 +3,6 @@ package googledomain
 import (
 	ddnsclient "dns_updater/client/ddns_client"
 	"dns_updater/logger"
-	"fmt"
 
 	"dns_updater/config"
 )
@@ -26,13 +25,13 @@ func (m *GoogleDomainClient) Add() error {
 
 func (m *GoogleDomainClient) Update(errCh chan<- error) {
 	m.logger.Debug("update called")
-	m.logger.Info(fmt.Sprintf("update google domain with %s will start", m.Name))
+	m.logger.InfoF("update google domain with %s will start", m.Name)
 	_, err := m.ddnsclient.Update()
 	if err != nil {
-		m.logger.Error(fmt.Sprintf("update with %s failed", m.Name))
+		m.logger.ErrorF("update with %s failed", m.Name)
 		errCh <- err
 	}
-	m.logger.Info(fmt.Sprintf("update with %s was executed successfully", m.Name))
+	m.logger.InfoF("update with %s was executed successfully", m.Name)
 }
 
 func NewGoogleDomainClient(cfg *config.YamlConfig, logger *logger.Logger) *GoogleDomainClient {
@@ -44,6 +43,6 @@ func NewGoogleDomainClient(cfg *config.YamlConfig, logger *logger.Logger) *Googl
 		logger.Error(err.Error())
 		return nil
 	}
-	ddnsclient.SetParam("hostname", cfg.GoogleDomain.Domain)
+	ddnsclient.SetParam("hostname", cfg.GoogleDomain.Name)
 	return &GoogleDomainClient{ddnsclient: ddnsclient, logger: googleDomainLogger, Name: cfg.GoogleDomain.UserName}
 }

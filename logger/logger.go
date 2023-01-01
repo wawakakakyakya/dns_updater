@@ -2,6 +2,7 @@ package logger
 
 import (
 	"dns_updater/config"
+	"fmt"
 	"io"
 	"os"
 
@@ -17,16 +18,32 @@ func (l *Logger) Info(msg string) {
 	l.logger.Info().Msg(msg)
 }
 
+func (l *Logger) InfoF(msg string, a ...any) {
+	l.Info(fmt.Sprintf(msg, a...))
+}
+
 func (l *Logger) Warn(msg string) {
 	l.logger.Warn().Msg(msg)
+}
+
+func (l *Logger) WarnF(msg string, a ...any) {
+	l.Warn(fmt.Sprintf(msg, a...))
 }
 
 func (l *Logger) Error(msg string) {
 	l.logger.Error().Msg(msg)
 }
 
+func (l *Logger) ErrorF(msg string, a ...any) {
+	l.Error(fmt.Sprintf(msg, a...))
+}
+
 func (l *Logger) Debug(msg string) {
 	l.logger.Debug().Msg(msg)
+}
+
+func (l *Logger) DebugF(msg string, a ...any) {
+	l.Debug(fmt.Sprintf(msg, a...))
 }
 
 func (l *Logger) Child(process string) *Logger {

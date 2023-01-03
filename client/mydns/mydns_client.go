@@ -26,10 +26,14 @@ func (m *MyDNSClient) Add() error {
 func (m *MyDNSClient) Update(errCh chan<- error) {
 	m.logger.Debug("update called")
 	m.logger.InfoF("update mydns with %s will start", m.Name)
-	_, err := m.ddnsclient.Update()
+	resp, err := m.ddnsclient.Update()
+	respS := resp.String()
 	if err != nil {
 		m.logger.ErrorF("update mydns with %s failed", m.Name)
 		errCh <- err
+	} else {
+		m.logger.Info(respS)
+		m.logger.InfoF("update with %s was executed successfully", m.Name)
 	}
 	m.logger.InfoF("update mydns with %s was executed successfully", m.Name)
 }

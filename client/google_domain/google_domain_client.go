@@ -31,7 +31,8 @@ func (m *GoogleDomainClient) Update(errCh chan<- error) {
 	m.logger.Debug("update called")
 	m.logger.InfoF("update google domain with %s will start", m.Name)
 	resp, err := m.ddnsclient.Update()
-	if respS := resp.String(); !okResp.MatchString(resp.String()) {
+	respS := resp.String()
+	if !okResp.MatchString(resp.String()) {
 		m.logger.ErrorF("update with %s failed", m.Name)
 		err = errors.New(respS)
 		errCh <- err
@@ -39,6 +40,7 @@ func (m *GoogleDomainClient) Update(errCh chan<- error) {
 		m.logger.ErrorF("update with %s failed", m.Name)
 		errCh <- err
 	} else {
+		m.logger.Info(respS)
 		m.logger.InfoF("update with %s was executed successfully", m.Name)
 	}
 

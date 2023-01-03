@@ -26,6 +26,7 @@ func (c *MyHttpClient) Get(req *http.Request) (*bytes.Buffer, error) {
 	}
 	defer resp.Body.Close()
 	io.Copy(&buf, resp.Body)
+	c.logger.DebugF("resp.StatusCode: %d", resp.StatusCode)
 	ok := resp.StatusCode >= 200 && resp.StatusCode < 300
 	if !ok {
 		c.logger.ErrorF("request to %s failed, status code: %d", req.URL, resp.StatusCode)
@@ -33,6 +34,7 @@ func (c *MyHttpClient) Get(req *http.Request) (*bytes.Buffer, error) {
 		return &buf, err
 	} else {
 		c.logger.DebugF("request to %s was executed successfully", req.URL)
+		c.logger.DebugF("response body: %s", buf.String())
 	}
 
 	return &buf, nil

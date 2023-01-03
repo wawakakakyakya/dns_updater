@@ -23,3 +23,4 @@ config.yml
 credentials.json
 *.log
 dns_updater*
+docker-compose.yml

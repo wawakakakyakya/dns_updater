@@ -53,15 +53,20 @@ func (l *Logger) Child(process string) *Logger {
 
 func NewLogger(process string, cfg *config.LogConfig) *Logger {
 	var logger zerolog.Logger
-	rotateWriter := &lumberjack.Logger{
-		Filename:   cfg.Path,
-		MaxSize:    cfg.MaxSize, // megabytes
-		MaxBackups: cfg.MaxBackups,
-		MaxAge:     cfg.MaxAge,   //days
-		Compress:   cfg.Compress, // disabled by default
-	}
 	stdoutWriter := zerolog.ConsoleWriter{Out: os.Stdout, NoColor: false}
-	writer := io.MultiWriter(stdoutWriter, rotateWriter)
+	rotateWriter := &lumberjack.Logger{}
+	writer := io.Writer(stdoutWriter)
+	if cfg.Path != "" {
+		rotateWriter = &lumberjack.Logger{
+			Filename:   cfg.Path,
+			MaxSize:    cfg.MaxSize, // megabytes
+			MaxBackups: cfg.MaxBackups,
+			MaxAge:     cfg.MaxAge,   //days
+			Compress:   cfg.Compress, // disabled by default
+		}
+		writer = io.MultiWriter(stdoutWriter, rotateWriter)
+	}
+
 	logger = zerolog.New(writer).Level(zerolog.Level(cfg.Level)).With().
 		Timestamp().
 		Str("process", process).

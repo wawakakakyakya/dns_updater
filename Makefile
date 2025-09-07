@@ -13,7 +13,7 @@ set_arm:
 	$(eval arch := arm)
 
 build:
-	GOOS=linux GOARCH=$(arch) go build -ldflags "-X dns_updater/version.Version=$(version) -X  dns_updater/version.Revision=$(revision)" -o ${fileName}_for_$(arch) main.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=$(arch) go build -ldflags "-X dns_updater/version.Version=$(version) -X  dns_updater/version.Revision=$(revision)" -o ${fileName}_for_$(arch) main.go
 build_linux: clean set_amd64 build
 build_arm: clean set_arm build
 

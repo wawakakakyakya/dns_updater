@@ -10,7 +10,7 @@ import (
 	"sync"
 )
 
-var globalIPURL = "https://domains.google.com/checkip"
+var globalIPURL = "https://checkip.amazonaws.com/"
 
 type GlobalIPClient struct {
 	client *my_http_client.MyHttpClient

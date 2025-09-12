@@ -53,7 +53,7 @@ var (
 	globalIP              *string //直接参照させず、Get経由で取得させる
 )
 
-//GlobalIPClientは共有で使用する
+// GlobalIPClientは共有で使用する
 func NewGlobalIPClient(timeout int, logger *logger.Logger) *GlobalIPClient {
 	newGlobalIPClientLock.Lock()
 	defer newGlobalIPClientLock.Unlock()

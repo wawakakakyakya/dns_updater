@@ -3,6 +3,7 @@ package main
 import (
 	"dns_updater/client"
 	clouddns "dns_updater/client/cloud_dns"
+	cloudflare "dns_updater/client/cloudflare_client"
 	googledomain "dns_updater/client/google_domain"
 	"dns_updater/client/mydns"
 	"dns_updater/config"
@@ -39,6 +40,8 @@ func main() {
 			client = googledomain.NewGoogleDomainClient(cfg, logger)
 		case "cloudDNS":
 			client = clouddns.NewCloudDNSClient(cfg, logger)
+		case "cloudflare":
+			client = cloudflare.NewCloudFlareClient(cfg, logger)
 		default:
 			logger.WarnF("unsupported env: %s, skipped", cfg.Env)
 			continue

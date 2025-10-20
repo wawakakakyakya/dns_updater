@@ -2,6 +2,7 @@ package my_http_client
 
 import (
 	"bytes"
+	"crypto/tls"
 	"dns_updater/logger"
 	"io"
 	"net/http"
@@ -40,8 +41,11 @@ func (c *MyHttpClient) Get(req *http.Request) (*bytes.Buffer, error) {
 	return &buf, nil
 }
 
-func NewMyHttpClient(timeout int, logger *logger.Logger) *MyHttpClient {
-	client := &http.Client{Timeout: time.Duration(timeout) * time.Second}
+func NewMyHttpClient(timeout int, skipVerify bool, logger *logger.Logger) *MyHttpClient {
+	tp := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: skipVerify},
+	}
+	client := &http.Client{Timeout: time.Duration(timeout) * time.Second, Transport: tp}
 	httpClientLogger := logger.Child("HttpClient")
 	return &MyHttpClient{client: client, logger: httpClientLogger}
 }

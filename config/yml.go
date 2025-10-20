@@ -56,7 +56,7 @@ type YamlConfig struct {
 	MyDNS        MyDNSConfig        `yaml:"mydns"`
 	GoogleDomain GoogleDomainConfig `yaml:"googleDomain"`
 	CloudFlare   CloudFlareConfig   `yaml:"cloudflare"`
-	SkipVefiry   bool               `yaml:"skip_verify"`
+	SkipVefiry   bool               `yaml:"skipVerify"`
 }
 
 func LoadYamlConfig() (YamlConfigs, error) {

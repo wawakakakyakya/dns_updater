@@ -48,7 +48,7 @@ func (m *GoogleDomainClient) Update(errCh chan<- error) {
 
 func NewGoogleDomainClient(cfg *config.YamlConfig, logger *logger.Logger) *GoogleDomainClient {
 	googleDomainLogger := logger.Child("GoogleDomainClient")
-	ddnsclient, err := ddnsclient.NewDDNSClient(googleDomainURL, cfg.Timeout, cfg.GoogleDomain.UserName, cfg.GoogleDomain.Pass, googleDomainLogger)
+	ddnsclient, err := ddnsclient.NewDDNSClient(googleDomainURL, cfg.Timeout, cfg.GoogleDomain.UserName, cfg.GoogleDomain.Pass, cfg.SkipVefiry, googleDomainLogger)
 
 	if err != nil {
 		logger.Error("create GoogleDomainClient failed")

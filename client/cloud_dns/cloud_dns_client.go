@@ -21,7 +21,7 @@ type CloudDNSClient struct {
 
 func NewCloudDNSClient(cfg *config.YamlConfig, logger *logger.Logger) *CloudDNSClient {
 	cloudDNSLogger := logger.Child("CloudDNSClient")
-	globalIPClient := myglobalip.NewGlobalIPClient(cfg.Timeout, cloudDNSLogger)
+	globalIPClient := myglobalip.NewGlobalIPClient(cfg.Timeout, cfg.SkipVefiry, cloudDNSLogger)
 	return &CloudDNSClient{logger: cloudDNSLogger, Name: &cfg.CloudDNS.Name, globalIPClient: globalIPClient, cfg: &cfg.CloudDNS}
 }
 
@@ -30,7 +30,7 @@ func (c *CloudDNSClient) List() []string {
 }
 
 func (c *CloudDNSClient) Update(errCh chan<- error) {
-	c.logger.InfoF("update clouddns with %s started", c.Name)
+	c.logger.InfoF("update clouddns with %s started", *c.Name)
 
 	ctx := context.Background()
 	credentialJson, err := file.ReadAll(c.cfg.Credential)

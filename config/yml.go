@@ -41,12 +41,22 @@ type GoogleDomainConfig struct {
 	Pass     string `yaml:"password"`
 }
 
+type CloudFlareConfig struct {
+	Token   string `yaml:"token"`
+	ZoneId  string `yaml:"zone_id"`
+	Name    string `yaml:"name"`
+	Type    string `yaml:"type"`
+	Comment string `yaml:"comment"`
+}
+
 type YamlConfig struct {
 	Env          string             `yaml:"env"`
 	Timeout      int                `yaml:"timeout"`
 	CloudDNS     CloudDNS           `yaml:"cloudDNS"`
 	MyDNS        MyDNSConfig        `yaml:"mydns"`
 	GoogleDomain GoogleDomainConfig `yaml:"googleDomain"`
+	CloudFlare   CloudFlareConfig   `yaml:"cloudflare"`
+	SkipVefiry   bool               `yaml:"skipVerify"`
 }
 
 func LoadYamlConfig() (YamlConfigs, error) {

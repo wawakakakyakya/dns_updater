@@ -40,7 +40,7 @@ func (m *MyDNSClient) Update(errCh chan<- error) {
 
 func NewMyDNSClient(cfg *config.YamlConfig, logger *logger.Logger) *MyDNSClient {
 	mydnsLogger := logger.Child("MyDNSClient")
-	ddnsclient, err := ddnsclient.NewDDNSClient(myDNSURL, cfg.Timeout, cfg.MyDNS.UserName, cfg.MyDNS.Pass, mydnsLogger)
+	ddnsclient, err := ddnsclient.NewDDNSClient(myDNSURL, cfg.Timeout, cfg.MyDNS.UserName, cfg.MyDNS.Pass, cfg.SkipVefiry, mydnsLogger)
 
 	if err != nil {
 		logger.Error("create MyDNSClient failed")

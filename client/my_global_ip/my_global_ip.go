@@ -54,7 +54,7 @@ var (
 )
 
 // GlobalIPClientは共有で使用する
-func NewGlobalIPClient(timeout int, logger *logger.Logger) *GlobalIPClient {
+func NewGlobalIPClient(timeout int, skipVerify bool, logger *logger.Logger) *GlobalIPClient {
 	newGlobalIPClientLock.Lock()
 	defer newGlobalIPClientLock.Unlock()
 
@@ -69,7 +69,7 @@ func NewGlobalIPClient(timeout int, logger *logger.Logger) *GlobalIPClient {
 		logger.Error(err.Error())
 		return nil
 	}
-	client := my_http_client.NewMyHttpClient(timeout, globalIPLogger)
+	client := my_http_client.NewMyHttpClient(timeout, skipVerify, globalIPLogger)
 	sharedGlobalIPClient := &GlobalIPClient{client: client, logger: globalIPLogger, req: req}
 	return sharedGlobalIPClient
 }

@@ -84,7 +84,7 @@ func (c *CloudFlareClient) makeBody(skipVerify bool) (io.Reader, error) {
 
 	data := map[string]string{}
 	data["content"] = *gip
-	data["name"] = c.cfg.Domain
+	data["name"] = c.cfg.Name
 	data["proxied"] = "false"
 	data["type"] = c.cfg.Type
 	data["comment"] = c.cfg.Comment
@@ -124,7 +124,7 @@ func (c *CloudFlareClient) Update(errCh chan<- error) {
 
 func NewCloudFlareClient(cfg *config.YamlConfig, logger *logger.Logger) *CloudFlareClient {
 	cloudflareLogger := logger.Child("CloudFlareClient")
-	client := httpClient.NewMyHttpClient(cfg.Timeout, false, logger)
+	client := httpClient.NewMyHttpClient(cfg.Timeout, cfg.SkipVefiry, logger)
 
 	return &CloudFlareClient{httpClient: client, logger: cloudflareLogger, cfg: &cfg.CloudFlare}
 }

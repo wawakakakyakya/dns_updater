@@ -43,8 +43,8 @@ type GoogleDomainConfig struct {
 
 type CloudFlareConfig struct {
 	Token   string `yaml:"token"`
-	Zone    string `yaml:"zone"`
-	Domain  string `yaml:"domain"`
+	ZoneId  string `yaml:"zone_id"`
+	Name    string `yaml:"name"`
 	Type    string `yaml:"type"`
 	Comment string `yaml:"comment"`
 }
